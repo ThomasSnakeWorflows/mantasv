@@ -1,0 +1,4 @@
+sample_file: sample.txt
+reference: /work2/genphyse/dynagen/tfaraut/CNVPipeline/work/vargoats/tinydata/hsa10.fa
+chromregex: '(chr)?([1-9][0-9]?|[XY])'
+workdir: "mantasv"
