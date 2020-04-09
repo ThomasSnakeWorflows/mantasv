@@ -40,7 +40,7 @@ workdir: config['workdir']
 
 svtypes = ['DEL', 'INS', 'INV', 'DUP']
 
-localrules: regions
+localrules: regions, configmanta
 
 rule all:
     input:
