@@ -4,7 +4,11 @@ import shutil
 from collections import defaultdict
 
 
-def get_threads(rule, default):
+DEFAULT_THREADS = 8
+DEFAULT_MEM_PER_CPUS = 8
+
+
+def get_threads(rule, default=DEFAULT_THREADS):
     cluster_config = snakemake.workflow.cluster_config
     if rule in cluster_config and "threads" in cluster_config[rule]:
         return cluster_config[rule]["threads"]
@@ -20,6 +24,17 @@ def get_mem(rule, default):
     if "default" in cluster_config and "mem" in cluster_config["default"]:
         return cluster_config["default"]["mem"]
     return default
+
+
+def get_manta_mem(cpus):
+    cluster_config = snakemake.workflow.cluster_config
+    if "runmanta" in cluster_config and "mem-per-cpu" in cluster_config["runmanta"]:
+        mem = int(cpus) * int(cluster_config["runmanta"]["mem-per-cpu"])
+        return mem
+    if "default" in cluster_config and "mem-per-cpu" in cluster_config["default"]:
+        mem = int(cpus) * int(cluster_config["default"]["mem-per-cpu"])
+        return mem
+    return cpus*DEFAULT_MEM_PER_CPUS
 
 
 def get_bams(sample_file):
@@ -40,7 +55,7 @@ workdir: config['workdir']
 
 svtypes = ['DEL', 'INS', 'INV', 'DUP']
 
-localrules: regions, configmanta
+localrules: regions, configmanta, combine, convert, splitvcf
 
 rule all:
     input:
@@ -107,14 +122,14 @@ rule runmanta:
     output:
         "rundir/results/variants/diploidSV.vcf.gz"
     threads:
-        get_threads("runmanta", 5)
+        get_threads("runmanta")
     params:
-        mem = get_mem("runmanta", 24)
+        mem = get_manta_mem(get_threads("runmanta"))
     log:
         stdout = "logs/run.o",
         stderr = "logs/run.e"
     shell:
-        " python2 {input} -j {threads} -g {params.mem} --quiet "
+        " python2 {input} -j {threads} --memGb={params.mem} --quiet "
         " 1>{log.stdout} 2>{log.stderr} "
 
 

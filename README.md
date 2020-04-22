@@ -16,8 +16,8 @@ Snakemake command
 ```bash
 snakemake --configfile config.yaml \
           --cluster-config cluster.yaml \
-          --drmaa " --mem={cluster.mem}000 --mincpus={threads} --time={cluster.time} -J {cluster.name} -N 1=1" \
-          --jobs 4 -p -n
+          --drmaa " --mem-per-cpu={cluster.mem-per-cpu}000 --mincpus={threads} --time={cluster.time} -J {cluster.name} -N 1=1" \
+          --jobs 20 -p -n
 ```
 
 ##### tatum execution
